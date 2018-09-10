@@ -6,8 +6,11 @@ use std::collections::HashMap;
 #[derive(PartialEq, Eq, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum Ztm<T> {
+    /// No Object found, default
     None,
+    /// One found
     One(T),
+    /// Many found
     Many(Vec<T>)
 }
 
@@ -15,7 +18,6 @@ impl<T> Default for Ztm<T> {
     fn default() -> Ztm<T> {
         Ztm::None
     }
-
 }
 
 fn is_empty<T>(i: &Ztm<T>) -> bool {
@@ -26,6 +28,31 @@ fn is_empty<T>(i: &Ztm<T>) -> bool {
     }
 }
 
+#[derive(PartialEq, Eq, Debug, Serialize, Deserialize)]
+pub struct LinkDetails {
+    
+}
+
+#[derive(PartialEq, Eq, Debug, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum Link {
+    Detailed(LinkDetails),
+    Raw(String)
+}
+
+
+#[derive(PartialEq, Eq, Debug, Serialize, Deserialize)]
+pub struct ContextDetails {
+    
+}
+
+#[derive(PartialEq, Eq, Debug, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum Context {
+    Detailed(ContextDetails),
+    Link(Link),
+    Raw(String)
+}
 
 macro_rules! make_as_object {
     ($act:ident, $($attr:ident: $typ:ty,)* ) => {
@@ -124,31 +151,6 @@ macro_rules! build_activity_types {
     };
 }
 
-#[derive(PartialEq, Eq, Debug, Serialize, Deserialize)]
-pub struct ContextDetails {
-    
-}
-
-#[derive(PartialEq, Eq, Debug, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum Context {
-    Detailed(ContextDetails),
-    Link(Link),
-    Raw(String)
-}
-
-
-#[derive(PartialEq, Eq, Debug, Serialize, Deserialize)]
-pub struct LinkDetails {
-    
-}
-
-#[derive(PartialEq, Eq, Debug, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum Link {
-    Detailed(LinkDetails),
-    Raw(String)
-}
 
 build_as_types!(Actor, {
     Application,
