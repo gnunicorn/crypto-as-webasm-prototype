@@ -1,7 +1,6 @@
 extern crate multihash;
 
 extern crate futures;
-extern crate activitystreams_types;
 
 #[cfg(target_arch="wasm32")]
 extern crate web_sys;

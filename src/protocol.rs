@@ -2,16 +2,19 @@
 use as_types::{ActivityStreamEntity, Ztm};
 use multihash::Multihash;
 
+/// An enum of different KeyAlgorithms
 pub enum KeyAlgo {
+//TBD, e.g. pgp, ed25519, etc
 
 }
-
+/// A struct similar to a MultiHash:  prefixed with the
+/// Algorithm used and followed by the content
 pub struct MultiKey<'a> {
 	alg: KeyAlgo,
 	key: &'a [u8]
 }
 
-/// The threshold to reach (greater or eaqual than)
+/// The threshold to reach (greater or equal than)
 /// through the provided signatures to consider this
 /// block as valid. Represented as a mathematical fraction:
 /// nominator / denominators (this order). Both can be any
@@ -24,15 +27,17 @@ pub struct MultiKey<'a> {
 /// 0 in either field (or both) must is invalid.   
 type AuthThresholdFraction = (u8, u8);
 
-/// Custom Thresdholds for different actions
+/// Custom Thresholds for different actions
 pub enum AuthThreshold {
-	/// Thresdhold required for a ciphered block
+	/// Threshold required for a ciphered block
 	Cipher(AuthThresholdFraction),
-	/// Thresdhold required for a public text block
+	/// Threshold required for a public text block
 	Public(AuthThresholdFraction),
-	/// Thresdhold required for a cipher text block
+	/// Threshold required for a block that upgrades the permissions
 	Upgrade(AuthThresholdFraction),
-	/// Thresdhold required for a merge block
+	/// Threshold required for a snapshot block
+	Snapshot(AuthThresholdFraction),
+	/// Threshold required for a merge block
 	Merge(AuthThresholdFraction),
 	/// Threshold for all actions, primarily as a fallback
 	All(AuthThresholdFraction),
@@ -41,7 +46,7 @@ pub enum AuthThreshold {
 /// Settings to sign a specific block
 pub struct SignSettings<'a> {
 	/// A list of public keys and their respective weight
-	/// the weight is calculated as a ratio of the sum of all weights
+	/// the weight is calculated as a ratio compared to the sum of all weights
 	weights: Vec<(MultiKey<'a>, u8)>,
 	/// for individual actions specific thresholds can be configured
 	/// first match wins, if no match is found, a threshold of 1/1 is
@@ -52,7 +57,7 @@ pub struct SignSettings<'a> {
 /// Payload of a Block
 pub enum Payload {
 	Plain(Ztm<ActivityStreamEntity>),
-	Cipher(Vec<u8>)
+	Cipher(Vec<u8>) // Q: make this a multi-cypher-type obj?
 }
 
 
@@ -108,8 +113,29 @@ pub enum Block<'a> {
 		/// if present both `Merge` and `Upgrade`-Threshold
 		/// must be met
 		config: Option<SignSettings<'a>>,
-		/// Signature over prev + data
+		/// Signature over parents + data
 		sign: Vec<MultiKey<'a>>
-
 	},
+	Snapshot {
+		/// hash over parents + data + sign
+		id: Multihash<'a>,
+		/// The hash-id of the previous Snapshot,
+		/// or Genesis-Block, if first, containing
+		/// the calculated diff to that snapshot
+		prev: Multihash<'a>,
+		/// The Block this Snapshot was created at 
+		/// on the regular chain
+		at: Multihash<'a>,
+		/// payload merging content of Blocks
+		data: Option<Payload>,
+		/// optional configuration valid from at foregoing
+		/// if any changes to the configuration had happened
+		/// between the `.prev.at` and `.at` on the change,
+		/// they _must_ be present here in their final form
+		/// Peers must check this and reject the block if that
+		/// is not the case
+		config: Option<SignSettings<'a>>,
+		/// Signature over prev + at + data + config
+		sign: Vec<MultiKey<'a>>
+	}
 }

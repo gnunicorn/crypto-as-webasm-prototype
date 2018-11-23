@@ -13,7 +13,7 @@ js-sys = { path = '../wasm-bindgen/crates/js-sys' }
 wasm-bindgen = { path = '../wasm-bindgen' }
 wasm-bindgen-futures = { path = '../wasm-bindgen/crates/futures' }
 multihash = "*"
-activitystreams-types = "0.2"
+# activitystreams-types = "0.2"
 web-sys = { path = '../wasm-bindgen/crates/web-sys' }
 serde = "*"
 serde_derive = "*"

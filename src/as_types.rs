@@ -2,6 +2,9 @@
 use serde_json;
 use std::collections::HashMap;
 
+// Inspired Activity Streams 2.0:
+// https://www.w3.org/TR/activitystreams-core/#object
+
 /// Hold Zero-To-Many Objects
 #[derive(PartialEq, Eq, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
